@@ -1,25 +1,46 @@
-import logo from './logo.svg';
-import './App.css';
+import styled from 'styled-components/macro'
+import ToDo from './ToDo'
+import Form from './Form';
+import { useState, useEffect } from 'react';
+import { v4 as uuidv4 } from 'uuid'
+import saveLocally from './lib/saveLocally'
+import loadLocally from './lib/loadLocally';
 
 function App() {
+  const [toDos, setToDos] = useState(loadLocally('toDos') ?? []) //für useState laden wird local-gespeicherte Daten ein. Beim ersten öffnen wird ein leerer String genutzt.
+  
+  useEffect(() => {
+    saveLocally('toDos', toDos)
+  }, [toDos]) // gibt man hier kein Array an wird immer gespeichert, wenn irgend etwas im Dokument neu gerendert wird
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Wrapper className="App">
+      {toDos.map(({title, isDone, id}, index) => <ToDo onClick={() => toggleToDo(index)} title={title} isDone={isDone} key={id} id={id}/>)}
+      <Form onCreateToDo={addToDo} />
+    </Wrapper>
   );
+
+  // --------checkbox toggeln-------- 
+
+  function toggleToDo(index) {
+    const toDo = toDos[index]
+    
+    // --------neues Array generieren, das alle zuvorigen PLUS den neuen Wert beinhaltet
+    
+    setToDos([ 
+      ...toDos.slice(0, index), // Array, in dem alle Objekte vor dem Index drin sind
+      {...toDo, isDone: !toDo.isDone}, // dieses Objekt soll alles beinhalten was vorher im Array stand und für isDone das Gegenteil was vorher drin war
+      ...toDos.slice(index + 1) // + alles was hinter dem Index steht 
+    ])
+  }
+
+  function addToDo(title) {
+    setToDos([...toDos, {title, isDone: false, id: uuidv4() }])
+  }
 }
 
 export default App;
+
+const Wrapper = styled.div`
+    margin: 2em;
+`
