@@ -5,10 +5,16 @@ import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid'
 import saveLocally from './lib/saveLocally'
 import loadLocally from './lib/loadLocally';
+// import getToDos from './services/getToDos'
 
 function App() {
   const [toDos, setToDos] = useState(loadLocally('toDos') ?? []) //für useState laden wird local-gespeicherte Daten ein. Beim ersten öffnen wird ein leerer String genutzt.
   
+  // useEffect(() => {
+  //   getToDos() // function fetched data from server
+  //   .then(toDos => setToDos(toDos)) // diese Daten (pink) sind Todos die vom Server kommen
+  // }, []) // bei leerem Array wird dies nur 1x ausgeführt
+
   useEffect(() => {
     saveLocally('toDos', toDos)
   }, [toDos]) // gibt man hier kein Array an wird immer gespeichert, wenn irgend etwas im Dokument neu gerendert wird
